@@ -12,6 +12,8 @@
   "devDependencies": {
     "body-parser": "^1.18.3",
     "express": "^4.16.3",
-    "mongoose": "^5.1.4"
+    "jsonwebtoken": "^8.3.0",
+    "mongoose": "^5.1.4",
+    "nodemon": "^1.17.5"
   }
 }

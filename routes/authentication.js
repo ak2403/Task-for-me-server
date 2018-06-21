@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const jwt = require('jsonwebtoken');
 require('../models/user.js');
 require('../models/project.js');
 
@@ -20,7 +21,7 @@ router.post('/registration', (req, res) => {
             createProject.save()
                 .then((projectRes) => {
                     res.json({
-                        
+
                     })
                 });
         })
@@ -29,10 +30,32 @@ router.post('/registration', (req, res) => {
 router.post('/login', (req, res) => {
     let data = req.body;
     users.findOne({
-        username: req.body.username
-    }).then(resp=>{
-        console.log(resp)
+        username: data.username
+    }).then(resp => {
+        if (resp) {
+            if (resp.password === data.password) {
+                const token = jwt.sign({
+                    authName: resp.username
+                }, 'aDSDJFNSDKBKSDBGKSDF');
+                res.json({
+                    isLogged: true,
+                    auth: token
+                });
+            } else {
+                res.json({
+                    isLogged: false,
+                    error: 'Invalid password.'
+                });
+            }
+        } else {
+            res.json({
+                isLogged: false,
+                error: 'Invalid username.'
+            });
+        }
     })
+        .catch(e => {
+        })
 });
 
 module.exports = router;
