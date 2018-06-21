@@ -13,6 +13,9 @@ const projectSchema = new schema({
     },
     users: {
         type: Array
+    },
+    subproject: {
+        type: Array
     }
 });
 

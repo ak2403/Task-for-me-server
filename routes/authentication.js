@@ -37,10 +37,17 @@ router.post('/login', (req, res) => {
                 const token = jwt.sign({
                     authName: resp.username
                 }, 'aDSDJFNSDKBKSDBGKSDF');
-                res.json({
-                    isLogged: true,
-                    auth: token
-                });
+
+                let getProjects;
+                projects.findOne({
+                    name: resp.project
+                }).then(project => {
+                    res.json({
+                        isLogged: true,
+                        project: project,
+                        auth: token
+                    });
+                })
             } else {
                 res.json({
                     isLogged: false,
