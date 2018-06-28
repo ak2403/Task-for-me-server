@@ -34,14 +34,15 @@ router.post('/login', (req, res) => {
     }).then(resp => {
         if (resp) {
             if (resp.password === data.password) {
-                const token = jwt.sign({
-                    authName: resp.username
-                }, 'aDSDJFNSDKBKSDBGKSDF');
-
                 let getProjects;
                 projects.findOne({
                     name: resp.project
                 }).then(project => {
+                    const token = jwt.sign({
+                        authName: resp.username,
+                        project: project
+                    }, 'aDSDJFNSDKBKSDBGKSDF');
+                    
                     res.json({
                         isLogged: true,
                         project: project,

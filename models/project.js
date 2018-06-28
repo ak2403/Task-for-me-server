@@ -5,6 +5,9 @@ const projectSchema = new schema({
     name: {
         type: String
     },
+    code: {
+        type: String
+    },
     admin: {
         type: String
     },
@@ -14,7 +17,7 @@ const projectSchema = new schema({
     users: {
         type: Array
     },
-    subproject: {
+    subProject: {
         type: Array
     }
 });
