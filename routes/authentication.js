@@ -1,69 +1,56 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const jwt = require('jsonwebtoken');
-require('../models/user.js');
-require('../models/project.js');
-
-const users = mongoose.model('users');
-const projects = mongoose.model('projects');
+const express = require('express')
+const mongoose = require('mongoose')
+const jwt = require('jsonwebtoken')
+const passport = require('passport')
+const _ = require('lodash')
+const Users = mongoose.model('users')
 let router = express.Router();
+const LocalStrategy = require('passport-local').Strategy
 
 router.post('/registration', (req, res) => {
     let data = req.body;
-    let createUser = new users(req.body);
-    createUser.save()
-        .then(savedRes => {
-            let createProject = new projects({
-                name: req.body.project,
-                admin: req.body.username,
-                users: []
-            });
-            createProject.save()
-                .then((projectRes) => {
-                    res.json({
-
-                    })
-                });
+    return Users.addUser(data)
+        .then(response => {
+            res.status(200).json(response)
+        })
+        .catch(err => {
+            res.status(400).json(err)
         })
 });
 
-router.post('/login', (req, res) => {
-    let data = req.body;
-    users.findOne({
-        username: data.username
-    }).then(resp => {
-        if (resp) {
-            if (resp.password === data.password) {
-                let getProjects;
-                projects.findOne({
-                    name: resp.project
-                }).then(project => {
-                    const token = jwt.sign({
-                        authName: resp.username,
-                        project: project
-                    }, 'aDSDJFNSDKBKSDBGKSDF');
-                    
-                    res.json({
-                        isLogged: true,
-                        project: project,
-                        auth: token
-                    });
-                })
-            } else {
-                res.json({
-                    isLogged: false,
-                    error: 'Invalid password.'
-                });
-            }
+router.post('/login', (req, res, next) => {
+    passport.authenticate('local', (err, user, info) => {
+        if (user) {
+            req.login(user, (err) => {
+                if (err) {
+                    res.send(err);
+                }
+                const token = jwt.sign(user.toJSON(), 'asdasdasdasdasd');
+                return res.status(200).json({ token });
+            })
         } else {
-            res.json({
-                isLogged: false,
-                error: 'Invalid username.'
-            });
+            return res.status(400).json(info)
         }
-    })
-        .catch(e => {
-        })
-});
+    })(req, res, next);
+})
+
+router.post('/logout', (req, res) => {
+    req.logout()
+    res.status(403)
+})
+
+router.patch('/add-company', (req, res) => {
+    console.log(req.isAuthenticated())
+    return res.json({})
+})
+
+// router.get('/authrequired', (req, res) => {
+//     if (req.isAuthenticated()) {
+//         res.send('you hit the authentication endpoint\n')
+//     } else {
+//         res.redirect('/')
+//     }
+// })
+
 
 module.exports = router;
