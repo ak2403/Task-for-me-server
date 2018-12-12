@@ -5,7 +5,6 @@ const passport = require('passport')
 const _ = require('lodash')
 const Users = mongoose.model('users')
 let router = express.Router();
-const LocalStrategy = require('passport-local').Strategy
 
 router.post('/registration', (req, res) => {
     let data = req.body;

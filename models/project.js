@@ -2,22 +2,32 @@ const mongoose = require('mongoose');
 const schema = mongoose.Schema;
 
 const projectSchema = new schema({
+    id: {
+        type: mongoose.Schema.Types.ObjectId,
+        unique: true
+    },
     name: {
-        type: String
+        type: String,
+        required: true
     },
     code: {
         type: String
     },
-    admin: {
+    company: {
         type: String
+    },
+    created_on: {
+        type: Date,
+        default: new Date
+    },
+    created_by: {
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'users'
     },
     issues: {
         type: Array
     },
     users: {
-        type: Array
-    },
-    subProject: {
         type: Array
     }
 });
