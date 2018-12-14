@@ -3,6 +3,10 @@ const _ = require('lodash')
 const schema = mongoose.Schema;
 
 const userSchema = new schema({
+    id: {
+        type: mongoose.Schema.Types.ObjectId,
+        unique: true
+    },
     username: {
         type: String,
         required: true
@@ -20,7 +24,8 @@ const userSchema = new schema({
         type: String
     },
     company: {
-        type: String
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'companies'
     },
     is_email_verified: {
         type: Boolean,
@@ -35,7 +40,11 @@ userSchema.statics.addUser = function (req) {
                 if (_.isEmpty(findRes)) {
                     const newUser = new this(req)
                     newUser.save().then(saveRes => {
-                        resolve(saveRes)
+                        const returnObj = {
+                            id: saveRes._id,
+                            company: saveRes.company
+                        }
+                        resolve(returnObj)
                     })
                         .catch(err => {
                             reject(err)
@@ -45,6 +54,20 @@ userSchema.statics.addUser = function (req) {
                     reject(error_message)
                 }
             })
+    })
+}
+
+userSchema.statics.updateCompany = function (userID, companyID) {
+    return new Promise((resolve, reject) => {
+        this.findByIdAndUpdate(userID, {
+            $set: { 
+              "company": mongoose.Types.ObjectId(companyID)
+            }
+          }, {new: true}, function (err, user) {
+              if (err) throw reject(error)
+              
+              resolve(user)
+          })
     })
 }
 

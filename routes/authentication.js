@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken')
 const passport = require('passport')
 const _ = require('lodash')
 const Users = mongoose.model('users')
+const Companies = mongoose.model('companies')
 let router = express.Router();
 
 router.post('/registration', (req, res) => {
@@ -38,9 +39,15 @@ router.post('/logout', (req, res) => {
     res.status(403)
 })
 
-router.patch('/add-company', (req, res) => {
-    console.log(req.isAuthenticated())
-    return res.json({})
+router.post('/add-company', (req, res) => {
+    const data = req.body
+    return Companies.addCompany(data)
+        .then(response => {
+            res.status(200).json(response)
+        })
+        .catch(err => {
+            res.status(400).json(err)
+        })
 })
 
 // router.get('/authrequired', (req, res) => {
