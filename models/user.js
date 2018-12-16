@@ -23,6 +23,9 @@ const userSchema = new schema({
     project: {
         type: String
     },
+    tokens: {
+        type: Array
+    },
     company: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'companies'

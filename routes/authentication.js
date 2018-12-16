@@ -3,6 +3,7 @@ const mongoose = require('mongoose')
 const jwt = require('jsonwebtoken')
 const passport = require('passport')
 const _ = require('lodash')
+const ProtectedCheck = require('./protectedCheck')
 const Users = mongoose.model('users')
 const Companies = mongoose.model('companies')
 let router = express.Router();
@@ -25,7 +26,14 @@ router.post('/login', (req, res, next) => {
                 if (err) {
                     res.send(err);
                 }
-                const token = jwt.sign(user.toJSON(), 'asdasdasdasdasd');
+                const token = jwt.sign(user.toJSON(), "123");
+                Users.findByIdAndUpdate(user._id, {
+                    $push: {
+                        tokens: token
+                    }
+                }, {
+                    new: true
+                })
                 return res.status(200).json({ token });
             })
         } else {
@@ -34,15 +42,24 @@ router.post('/login', (req, res, next) => {
     })(req, res, next);
 })
 
-router.post('/logout', (req, res) => {
-    req.logout()
-    res.status(403)
+router.delete('/logout', ProtectedCheck, (req, res) => {
+    if (req.isAuthenticated()) {
+        req.logout()
+        res.status(403).json({
+            message: 'Logout'
+        })
+    } else {
+        res.status(403).json({
+            message: 'Login first'
+        })
+    }
 })
 
-router.post('/add-company', (req, res) => {
+router.post('/add-company', ProtectedCheck, (req, res, next) => {
     const data = req.body
     return Companies.addCompany(data)
         .then(response => {
+            req.userID = response._id
             res.status(200).json(response)
         })
         .catch(err => {

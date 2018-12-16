@@ -1,23 +1,23 @@
 const express = require('express');
 const mongoose = require('mongoose');
-require('../models/user.js');
-require('../models/project.js');
-
-const users = mongoose.model('users');
+const Users = mongoose.model('users');
 const Projects = mongoose.model('projects');
 let router = express.Router();
 
 router.post('/add-project', (req, res) => {
     if (req.isAuthenticated()) {
         const userProps = {
-            created_by: req.session.passport.user
+            created_by: req.userData._id,
+            company: req.userData.company
         }
         const data = { ...req.body, ...userProps }
-        const newProject = new Projects(data)
-        newProject.save()
-        res.status(200).json({
-            message: 'Project created',
-        })
+        Projects.addProject(data, req.userData)
+            .then(response => {
+                res.status(200).json(response)
+            })
+            .catch(err => {
+                res.status(400).json(err)
+            })
     } else {
         res.status(403).json({
             message: 'Unauthorizated access'
@@ -25,21 +25,16 @@ router.post('/add-project', (req, res) => {
     }
 });
 
-router.get('/get-project', (req, res) => {
-    if (req.isAuthenticated()) {
-        const userID = req.session.passport.user
+router.get('/', (req, res) => {
+        const userID = req.userData
+        
         Projects.find({
-            created_by: userID
+            created_by: userID._id
         }).then(response => {
             res.status(200).json({
                 projects: response
             })
         })
-    } else {
-        res.status(403).json({
-            message: 'Unauthorizated access'
-        })
-    }
 });
 
 router.patch('/edit-project', (req, res) => {

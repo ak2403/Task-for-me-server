@@ -1,11 +1,9 @@
-const mongoose = require('mongoose');
+const mongoose = require('mongoose')
+const _ = require('lodash')
+const Company = mongoose.model('companies')
 const schema = mongoose.Schema;
 
 const projectSchema = new schema({
-    id: {
-        type: mongoose.Schema.Types.ObjectId,
-        unique: true
-    },
     name: {
         type: String,
         required: true
@@ -14,23 +12,52 @@ const projectSchema = new schema({
         type: String
     },
     company: {
-        type: String
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'companies'
     },
     created_on: {
         type: Date,
         default: new Date
     },
+    updated_on: {
+        type: Date,
+        default: new Date
+    },
     created_by: {
-        type: mongoose.Schema.Types.ObjectId, 
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'users'
-    },
-    issues: {
-        type: Array
-    },
-    users: {
-        type: Array
     }
 });
+
+projectSchema.statics.addProject = function (data, user) {
+    return new Promise((resolve, reject) => {
+        Company.findOne({ _id: user.company })
+            .then(companyRes => {
+                const companyProject = companyRes.projects
+                const filterProj = companyProject.filter(proj => proj.name === data.name)
+
+                if (_.isEmpty(filterProj)) {
+                    const newProject = new this(data)
+                    newProject.save()
+
+                    Company.findOneAndUpdate(
+                        { _id: companyRes._id },
+                        { $push: { projects: newProject } },
+                        { new: true },
+                        function (err, item) { console.log("err", err) });
+
+                    resolve(newProject)
+                } else {
+                    const errorMsg = new Error('Project name already been used')
+                    reject(errorMsg)
+                }
+            })
+            .catch(err => {
+                const errorMsg = new Error('Unauthorizated access')
+                reject(errorMsg)
+            })
+    })
+}
 
 const projectModel = mongoose.model('projects', projectSchema);
 module.exports = projectModel;

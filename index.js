@@ -3,15 +3,18 @@ const mongoose = require('mongoose')
 const bodyParser = require('body-parser')
 const cors = require('cors')
 const uuid = require('uuid')
+require('dotenv').config({ path: 'variables.env' })
 const Users = require('./models/user')
 const Companies = require('./models/company')
+const Projects = require('./models/project')
+const Issues = require('./models/issue')
 const session = require('express-session')
 const passport = require('passport');
 const MongoStore = require('connect-mongo')(session);
 require('./routes/auth')(passport)
+const ProtectedCheck = require('./routes/protectedCheck')
 const authentication = require('./routes/authentication')
 const projects = require('./routes/project')
-require('dotenv').config({ path: 'variables.env' })
 
 const app = express()
 
@@ -39,7 +42,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use('/api', authentication)
-app.use('/projects', projects)
+app.use('/projects', ProtectedCheck, projects)
 
 app.listen('5000', () => {
     console.log('server running now...')
