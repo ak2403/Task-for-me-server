@@ -33,9 +33,10 @@ projectSchema.statics.addProject = function (data, user) {
     return new Promise((resolve, reject) => {
         Company.findOne({ _id: user.company })
             .then(companyRes => {
+                console.log('companyRes: ', companyRes)
                 const companyProject = companyRes.projects
                 const filterProj = companyProject.filter(proj => proj.name === data.name)
-
+                console.log('companyProject ', companyProject)
                 if (_.isEmpty(filterProj)) {
                     const newProject = new this(data)
                     newProject.save()

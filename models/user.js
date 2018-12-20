@@ -3,10 +3,6 @@ const _ = require('lodash')
 const schema = mongoose.Schema;
 
 const userSchema = new schema({
-    id: {
-        type: mongoose.Schema.Types.ObjectId,
-        unique: true
-    },
     username: {
         type: String,
         required: true
@@ -26,6 +22,10 @@ const userSchema = new schema({
     tokens: {
         type: Array
     },
+    is_company_added: {
+        type: Boolean,
+        default: false
+    },
     company: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'companies'
@@ -36,41 +36,101 @@ const userSchema = new schema({
     }
 });
 
-userSchema.statics.addUser = function (req) {
-    return new Promise((resolve, reject) => {
-        this.find({ useremail: req.useremail })
-            .then(findRes => {
-                if (_.isEmpty(findRes)) {
-                    const newUser = new this(req)
-                    newUser.save().then(saveRes => {
-                        const returnObj = {
-                            id: saveRes._id,
-                            company: saveRes.company
-                        }
-                        resolve(returnObj)
-                    })
-                        .catch(err => {
-                            reject(err)
-                        })
-                } else {
-                    const error_message = new Error('Email is already in use')
-                    reject(error_message)
-                }
-            })
+const handleError = err => {
+    const dict = {
+        'unique': "% already exists.",
+        'required': "%s is required.",
+        'min': "%s below minimum.",
+        'max': "%s above maximum.",
+        'enum': "%s is not an allowed value."
+    }
+
+    return Object.keys(err.errors).map(key => {
+        const props = err.errors[key].properties
+        return dict.hasOwnProperty(props.kind) ?
+            require('util').format(dict[props.kind], props.path) :
+            props.hasOwnProperty('message') ?
+                props.message : props.type
     })
 }
+
+userSchema.statics.addUser = function (req) {
+    return new Promise((resolve, reject)=>{
+        this.findOne({
+            useremail: req.useremail
+        }, (err, user) => {
+            if(err){
+                console.log("64")
+                console.log(err)
+            }
+
+            if(!user){
+                const newUser = new this(req)
+                newUser.save()
+                    .then(user => {
+                        const returnUser = {
+                            id: user._id,
+                            username: user.username,
+                            useremail: user.useremail,
+                            company: user.company,
+                            is_email_verified: user.is_email_verified,
+                            is_company_added: user.is_company_added
+                        }
+                        resolve(returnUser)
+                    })
+                    .catch(err => {
+                        reject(handleError(err))
+                    })
+            }else{
+                const error_obj = {
+                    error: 'Email already in use'
+                }
+                reject(error_obj)
+            }
+        })
+    })
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 userSchema.statics.updateCompany = function (userID, companyID) {
     return new Promise((resolve, reject) => {
         this.findByIdAndUpdate(userID, {
-            $set: { 
-              "company": mongoose.Types.ObjectId(companyID)
+            $set: {
+                "company": mongoose.Types.ObjectId(companyID),
+                "is_company_added": true
             }
-          }, {new: true}, function (err, user) {
-              if (err) throw reject(error)
-              
-              resolve(user)
-          })
+        }, { new: true }, function (err, user) {
+            if (err) throw reject(error)
+
+            resolve(user)
+        })
     })
 }
 
