@@ -60,5 +60,18 @@ projectSchema.statics.addProject = function (data, user) {
     })
 }
 
+projectSchema.statics.getProject = function (user) {
+    return new Promise((resolve, reject) => {
+        Company.findOne({ created_by: user })
+            .then(response => {
+                this.find({
+                    company: response._id
+                }, function (err, proj) {
+                    resolve(proj)
+                })
+            })
+    })
+}
+
 const projectModel = mongoose.model('projects', projectSchema);
 module.exports = projectModel;

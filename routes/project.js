@@ -26,16 +26,26 @@ router.post('/add-project', (req, res) => {
     // }
 });
 
-router.get('/', (req, res) => {
-        const userID = req.userData
-        console.log(userID)
-        Projects.find({
-            created_by: userID._id
-        }).then(response => {
-            res.status(200).json({
-                projects: response
-            })
+router.get('/:userID', (req, res) => {
+    Projects.getProject(req.params.userID)
+        .then(response => {
+            res.status(200).json(response)
         })
+        // Projects.find({
+        //     created_by: req.params.userID
+        // }, function(err, projects){
+            
+        //     if(err){
+        //         console.log(err)
+        //         return res.json({status: 400, error: err})
+        //     }
+        //     // let returnObject = {
+        //     //     projects: projects
+        //     // }
+
+        //     // res.status(200).json(returnObject)
+
+        // })
 });
 
 router.patch('/edit-project', (req, res) => {

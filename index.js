@@ -42,7 +42,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use('/api', authentication)
-app.use('/projects', ProtectedCheck, projects)
+app.use('/projects', projects)
 
 app.listen('5000', () => {
     console.log('server running now...')
