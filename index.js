@@ -10,11 +10,12 @@ const Projects = require('./models/project')
 const Issues = require('./models/issue')
 const session = require('express-session')
 const passport = require('passport');
-const MongoStore = require('connect-mongo')(session);
 require('./routes/auth')(passport)
 const ProtectedCheck = require('./routes/protectedCheck')
 const authentication = require('./routes/user')
 const projects = require('./routes/project')
+const companyRoute = require('./routes/company')
+const issueRoute = require('./routes/issue')
 
 const app = express()
 
@@ -32,17 +33,15 @@ app.use(session({
     },
     secret: 'secret',
     resave: false,
-    saveUninitialized: true,
-    // store: new MongoStore({
-    //     url: process.env.MONGO_URI,
-    //     autoReconnect: true
-    // })
+    saveUninitialized: true
 }))
 app.use(passport.initialize());
 app.use(passport.session());
 
 app.use('/api', authentication)
+app.use('/company', companyRoute)
 app.use('/projects', projects)
+app.use('/issues', issueRoute)
 
 app.listen('5000', () => {
     console.log('server running now...')

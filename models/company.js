@@ -16,17 +16,7 @@ const companySchema = new schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'users',
         required: true
-    },
-    projects: [{
-        id: {
-            type: String,
-            required: true
-        },
-        name: {
-            type: String,
-            required: true
-        }
-    }]
+    }
 });
 
 companySchema.statics.addCompany = function (data) {

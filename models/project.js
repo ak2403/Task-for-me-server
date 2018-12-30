@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
 const _ = require('lodash')
+const Users = mongoose.model('users')
 const Company = mongoose.model('companies')
 const schema = mongoose.Schema;
 
@@ -10,6 +11,10 @@ const projectSchema = new schema({
     },
     code: {
         type: String
+    },
+    type: {
+        type: String,
+        required: true
     },
     company: {
         type: mongoose.Schema.Types.ObjectId,
@@ -29,34 +34,58 @@ const projectSchema = new schema({
     }
 });
 
-projectSchema.statics.addProject = function (data, user) {
+const handleError = err => {
+    const dict = {
+        'unique': "% already exists.",
+        'required': "%s is required.",
+        'min': "%s below minimum.",
+        'max': "%s above maximum.",
+        'enum': "%s is not an allowed value."
+    }
+
+    return Object.keys(err.errors).map(key => {
+        const props = err.errors[key].properties
+        return dict.hasOwnProperty(props.kind) ?
+            require('util').format(dict[props.kind], props.path) :
+            props.hasOwnProperty('message') ?
+                props.message : props.type
+    })
+}
+
+projectSchema.statics.addProject = function (data, userID) {
     return new Promise((resolve, reject) => {
-        Company.findOne({ _id: user.company })
-            .then(companyRes => {
-                console.log('companyRes: ', companyRes)
-                const companyProject = companyRes.projects
-                const filterProj = companyProject.filter(proj => proj.name === data.name)
-                console.log('companyProject ', companyProject)
-                if (_.isEmpty(filterProj)) {
-                    const newProject = new this(data)
-                    newProject.save()
-
-                    Company.findOneAndUpdate(
-                        { _id: companyRes._id },
-                        { $push: { projects: newProject } },
-                        { new: true },
-                        function (err, item) { console.log("err", err) });
-
-                    resolve(newProject)
-                } else {
-                    const errorMsg = new Error('Project name already been used')
-                    reject(errorMsg)
+        Users.findById(userID, (err, user) => {
+            if (err) {
+                const error_message = {
+                    invalid_user: true,
+                    message: 'Invalid User'
                 }
+                return reject(error_message)
+            }
+
+            let project_data = {
+                ...data,
+                company: user.company,
+                created_by: userID
+            }
+            const new_project = new this(project_data)
+
+            new_project.save().then(function (project) {
+                Users.findByIdAndUpdate(userID, {
+                    $push: {
+                        project: project._id
+                    }
+                },
+                    { new: true },
+                    (err, updatedUser) => {
+                        if(err){
+
+                        }
+                        return resolve(project)
+                    })
             })
-            .catch(err => {
-                const errorMsg = new Error('Unauthorizated access')
-                reject(errorMsg)
-            })
+
+        })
     })
 }
 

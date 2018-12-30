@@ -1,11 +1,8 @@
 const mongoose = require('mongoose');
+const Users = mongoose.model('users')
 const schema = mongoose.Schema;
 
 const issueSchema = new schema({
-    id: {
-        type: mongoose.Schema.Types.ObjectId,
-        unique: true
-    },
     title: {
         type: String,
         required: true
@@ -29,10 +26,6 @@ const issueSchema = new schema({
         ref: 'projects'
     },
     comments: [{
-        id: {
-            type: mongoose.Schema.Types.ObjectId,
-            unique: true
-        },
         message: {
             type: 'String'
         },
@@ -50,6 +43,35 @@ const issueSchema = new schema({
         }
     }]
 });
+
+
+ issueSchema.statics.addIssue = function(data, userID){
+     return new Promise((resolve, reject) => {
+         const newIssue = new this(data)
+         newIssue.save()
+            .then(issue => {
+                resolve(issue)
+            })
+            .catch(err => {
+                reject(err)
+            })
+     })
+ }
+
+
+ issueSchema.statics.getIssue = function(userID){
+     return new Promise((resolve, reject) => {
+        Users.findById(userID, (err, user) => {
+            this.find({
+                'project': { $in: user.project}
+            }, function(err, issues){
+                resolve(issues)
+            });
+        })
+     })
+ }
+
+
 
 const issueModel = mongoose.model('issues', issueSchema);
 module.exports = issueModel;

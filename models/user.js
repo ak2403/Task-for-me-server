@@ -16,9 +16,10 @@ const userSchema = new schema({
         type: String,
         required: true
     },
-    project: {
-        type: String
-    },
+    project: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'projects'
+    }],
     tokens: {
         type: Array
     },
@@ -55,16 +56,16 @@ const handleError = err => {
 }
 
 userSchema.statics.addUser = function (req) {
-    return new Promise((resolve, reject)=>{
+    return new Promise((resolve, reject) => {
         this.findOne({
             useremail: req.useremail
         }, (err, user) => {
-            if(err){
+            if (err) {
                 console.log("64")
                 console.log(err)
             }
 
-            if(!user){
+            if (!user) {
                 const newUser = new this(req)
                 newUser.save()
                     .then(user => {
@@ -81,7 +82,7 @@ userSchema.statics.addUser = function (req) {
                     .catch(err => {
                         reject(handleError(err))
                     })
-            }else{
+            } else {
                 const error_obj = {
                     error: 'Email already in use'
                 }
