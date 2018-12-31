@@ -43,6 +43,6 @@ app.use('/company', companyRoute)
 app.use('/projects', projects)
 app.use('/issues', issueRoute)
 
-app.listen('5000', () => {
+app.listen(process.env.PORT || '5000', () => {
     console.log('server running now...')
 });
