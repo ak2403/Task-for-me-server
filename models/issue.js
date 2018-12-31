@@ -7,19 +7,43 @@ const issueSchema = new schema({
         type: String,
         required: true
     },
+    type: {
+        type: String,
+        required: true
+    },
+    version: {
+        type: String
+    },
     description: {
         type: String
     },
     status: {
         type: String
     },
+    due_date: {
+        type: Number
+    },
+    assignee: {
+        id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'users'
+        },
+        name: {
+            type: String
+        }
+    },
     created_on: {
         type: Date,
         default: new Date
     },
     created_by: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'users'
+        id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'users'
+        },
+        name: {
+            type: String
+        }
     },
     project: {
         type: mongoose.Schema.Types.ObjectId,
@@ -45,31 +69,39 @@ const issueSchema = new schema({
 });
 
 
- issueSchema.statics.addIssue = function(data, userID){
-     return new Promise((resolve, reject) => {
-         const newIssue = new this(data)
-         newIssue.save()
-            .then(issue => {
-                resolve(issue)
-            })
-            .catch(err => {
-                reject(err)
-            })
-     })
- }
+issueSchema.statics.addIssue = function (data, userID) {
+    return new Promise((resolve, reject) => {
+        let get_users = Users.find({
+            '_id': { $in: [data.created_by, data.created_by] }
+        }, (err, issues) => {
+            data['created_by'] = {
+                id: issues[0]._id,
+                name: issues[0].username
+            }
+            const newIssue = new this(data)
+            newIssue.save()
+                .then(issue => {
+                    resolve(issue)
+                })
+                .catch(err => {
+                    reject(err)
+                })
+        });
+    })
+}
 
 
- issueSchema.statics.getIssue = function(userID){
-     return new Promise((resolve, reject) => {
+issueSchema.statics.getIssue = function (userID) {
+    return new Promise((resolve, reject) => {
         Users.findById(userID, (err, user) => {
             this.find({
-                'project': { $in: user.project}
-            }, function(err, issues){
+                'project': { $in: user.project }
+            }, function (err, issues) {
                 resolve(issues)
             });
         })
-     })
- }
+    })
+}
 
 
 
