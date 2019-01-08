@@ -25,4 +25,14 @@ router.get('/:userID', (req, res) => {
         })
 })
 
+router.get('/:userID/:issueID', (req, res) => {
+    return Issues.getIssueDetails(req.params.userID, req.params.issueID)
+        .then(response => {
+            return res.status(200).json(response)
+        })
+        .catch(error => {
+            return res.status(400).json(error)
+        })
+})
+
 module.exports = router;

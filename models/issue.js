@@ -103,6 +103,14 @@ issueSchema.statics.getIssue = function (userID) {
     })
 }
 
+issueSchema.statics.getIssueDetails = function(userID, issueID){
+    return new Promise((resolve, reject) => {
+        this.findById(issueID, (err, issue) => {
+            resolve(issue)
+        })
+    })
+}
+
 
 
 const issueModel = mongoose.model('issues', issueSchema);
