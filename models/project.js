@@ -31,7 +31,11 @@ const projectSchema = new schema({
     created_by: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'users'
-    }
+    },
+    developers: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'users'
+    }]
 });
 
 const handleError = err => {
@@ -99,6 +103,14 @@ projectSchema.statics.getProject = function (user) {
                     resolve(proj)
                 })
             })
+    })
+}
+
+projectSchema.statics.getProjectDetail = function(userID, projectID){
+    return new Promise((resolve, reject) => {
+        this.findById(projectID, (err, project) => {
+            resolve(project)
+        })
     })
 }
 

@@ -24,6 +24,16 @@ router.get('/:userID', (req, res) => {
         })
 });
 
+router.get('/:userID/:projectID', (req, res) => {
+    Projects.getProjectDetail(req.params.userID, req.params.projectID)
+        .then(response => {
+            res.status(200).json(response)
+        })
+        .catch(err => {
+            res.status(400).json(err)
+        })
+});
+
 router.patch('/edit-project', (req, res) => {
     if (req.isAuthenticated()) {
         const projectData = req.body

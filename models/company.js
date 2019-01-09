@@ -48,5 +48,17 @@ companySchema.statics.addCompany = function (data) {
     })
 }
 
+companySchema.statics.getCompany = function(userID) {
+    return new Promise((resolve, reject) => {
+        this.findOne({
+            created_by: userID
+        }, (err, company) => {
+            if(company){
+                resolve(company)
+            }
+        })
+    })
+}
+
 const companyModel = mongoose.model('companies', companySchema);
 module.exports = companyModel;

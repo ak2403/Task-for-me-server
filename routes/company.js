@@ -56,5 +56,15 @@ router.post('/:userID/add-company', (req, res, next) => {
     })
 })
 
+router.get('/:userID', (req, res) => {
+    return Companies.getCompany(req.params.userID)
+        .then(response => {
+            res.status(200).json(response)
+        })
+        .catch(err => {
+            res.status(400).json(err)
+        })
+})
+
 
 module.exports = router;
