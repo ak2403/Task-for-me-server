@@ -6,6 +6,7 @@ const _ = require('lodash')
 const ProtectedCheck = require('./protectedCheck')
 const Users = mongoose.model('users')
 const Companies = mongoose.model('companies')
+const Mailrequest = require('./invites/mail-router')
 let router = express.Router();
 
 router.post('/:userID/add-company', (req, res, next) => {
@@ -54,6 +55,18 @@ router.post('/:userID/add-company', (req, res, next) => {
             })
         }
     })
+})
+
+router.post('/:userID/invite-members', (req, res) => {
+    Mailrequest(req.body.members)
+    // return res.status(200)
+    // return Companies.getCompany(req.params.userID)
+    //     .then(response => {
+    //         res.status(200).json(response)
+    //     })
+    //     .catch(err => {
+    //         res.status(400).json(err)
+    //     })
 })
 
 router.get('/:userID', (req, res) => {
