@@ -34,6 +34,10 @@ const userSchema = new schema({
     is_email_verified: {
         type: Boolean,
         default: false
+    },
+    is_access_granted: {
+        type: Boolean,
+        default: false
     }
 });
 
@@ -92,26 +96,45 @@ userSchema.statics.addUser = function (req) {
     })
 }
 
+userSchema.statics.joinUser = function (userData) {
+    return new Promise((resolve, reject) => {
+        this.findOne({
+            useremail: userData.useremail
+        }, (err, user) => {
+            if (err) {
+                console.log("64")
+                console.log(err)
+            }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            if (!user) {
+                delete userData['confirm_password']
+                userData['is_company_added']=true
+                
+                const newUser = new this(userData)
+                newUser.save()
+                    .then(user => {
+                        const returnUser = {
+                            id: user._id,
+                            username: user.username,
+                            useremail: user.useremail,
+                            company: user.company,
+                            is_email_verified: user.is_email_verified,
+                            is_company_added: user.is_company_added
+                        }
+                        resolve(returnUser)
+                    })
+                    .catch(err => {
+                        reject(handleError(err))
+                    })
+            } else {
+                const error_obj = {
+                    error: 'Email already in use'
+                }
+                reject(error_obj)
+            }
+        })
+    })
+}
 
 
 

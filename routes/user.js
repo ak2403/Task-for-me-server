@@ -20,20 +20,15 @@ router.post('/registration', (req, res) => {
 
 });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+router.post('/join', (req, res) => {
+    return Users.joinUser(req.body)
+        .then(user => {
+            res.status(200).json(user)
+        })
+        .catch(err => {
+            res.status(400).json(err)
+        })
+})
 
 router.post('/login', (req, res, next) => {
     passport.authenticate('local', (err, user, info) => {
@@ -79,14 +74,13 @@ router.delete('/logout', ProtectedCheck, (req, res) => {
     }
 })
 
-
 router.post('/:userID/add-company', (req, res, next) => {
     const data = req.body
 
     Companies.findOne({
         name: data.name
     }, (err, company) => {
-        if(err){
+        if (err) {
             console.log(err)
         }
         if (!company) {
@@ -100,7 +94,7 @@ router.post('/:userID/add-company', (req, res, next) => {
                             "is_company_added": true
                         }
                     }, { new: true }, function (err, user) {
-                        if (err){
+                        if (err) {
 
                         }
 
@@ -111,7 +105,7 @@ router.post('/:userID/add-company', (req, res, next) => {
                     console.log(err)
                     // reject(handleError(err))
                 })
-        }else{
+        } else {
             res.status(400).json({
                 error: 'Comany already registered'
             })

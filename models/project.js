@@ -114,5 +114,9 @@ projectSchema.statics.getProjectDetail = function(userID, projectID){
     })
 }
 
+projectSchema.statics.getMembers = function(projectID){
+    console.log(projectID)
+}
+
 const projectModel = mongoose.model('projects', projectSchema);
 module.exports = projectModel;

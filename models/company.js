@@ -60,5 +60,15 @@ companySchema.statics.getCompany = function(userID) {
     })
 }
 
+companySchema.statics.getCompanyDev = function(userID) {
+    return new Promise((resolve, reject) => {
+        this.find({}, (err, company) => {
+            if(company){
+                resolve(company)
+            }
+        })
+    })
+}
+
 const companyModel = mongoose.model('companies', companySchema);
 module.exports = companyModel;
