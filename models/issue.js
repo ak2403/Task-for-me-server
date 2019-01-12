@@ -28,7 +28,7 @@ const issueSchema = new schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: 'users'
         },
-        name: {
+        username: {
             type: String
         }
     },

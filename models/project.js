@@ -115,7 +115,13 @@ projectSchema.statics.getProjectDetail = function(userID, projectID){
 }
 
 projectSchema.statics.getMembers = function(projectID){
-    console.log(projectID)
+    return new Promise((resolve, reject) => {
+        Users.find({}, (err, users) => {
+            if(users){
+                resolve(users)
+            }
+        })
+    })
 }
 
 const projectModel = mongoose.model('projects', projectSchema);

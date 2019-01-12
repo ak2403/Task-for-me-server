@@ -14,6 +14,16 @@ router.post('/:userID/add-project', (req, res) => {
         })
 });
 
+router.get('/members', (req, res) => {
+    Projects.getMembers()
+        .then(response => {
+            res.status(200).json(response)
+        })
+        .catch(err => {
+            res.status(400).json(err)
+        })
+});
+
 router.get('/:userID', (req, res) => {
     Projects.getProject(req.params.userID)
         .then(response => {
@@ -26,16 +36,6 @@ router.get('/:userID', (req, res) => {
 
 router.get('/:userID/:projectID', (req, res) => {
     Projects.getProjectDetail(req.params.userID, req.params.projectID)
-        .then(response => {
-            res.status(200).json(response)
-        })
-        .catch(err => {
-            res.status(400).json(err)
-        })
-});
-
-router.get('/:projectID/members', (req, res) => {
-    Projects.getMembers(req.params.projectID)
         .then(response => {
             res.status(200).json(response)
         })
